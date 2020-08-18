@@ -1,5 +1,11 @@
 import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  getByText,
+} from "@testing-library/react";
 import { fetchShow as mockFetchShow } from "./api/fetchShow";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
@@ -706,17 +712,33 @@ const showData = {
   },
 };
 
-test("renders shows data when API call finishes", async () => {
+// test("renders shows data when API call finishes", async () => {
+//   mockFetchShow.mockResolvedValueOnce(showData);
+//   // const {rerender} = render(<App  />)
+//   // rerender(<App show={showData} />);
+//   render(<App />);
+//   await screen.findByRole("heading", /stranger things/i);
+
+//   //click on dropdown menu
+//   userEvent.click(screen.getByText(/select a season/i));
+
+//   fireEvent.click(getByText(/season 3/i));
+
+//   // userEvent.selectOptions(/season 1/i)
+// });
+
+test("rendering data and clicking on the dropdown menu for a different season", async () => {
   mockFetchShow.mockResolvedValueOnce(showData);
-  // const {rerender} = render(<App  />)
-  // rerender(<App show={showData} />);
-  render(<App />);
+
+  const { getByText, queryAllByTestId } = render(<App />);
+
   await screen.findByRole("heading", /stranger things/i);
 
-  //click on dropdown menu
-  userEvent.click(screen.getByText(/select a season/i));
+  await waitFor(() => {
+    expect(getByText(/select a season/i));
+  });
 
-  const option = screen.findAllByPlaceholderText(/select an option/i);
-
-  userEvent.selectOptions(/season 1/i)
+  userEvent.click(getByText(/select a season/i));
+  fireEvent.click(getByText(/season 1/i));
+  expect(queryAllByTestId(/dropdown/i)).toHaveLength(8);
 });
