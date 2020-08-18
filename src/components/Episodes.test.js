@@ -1,20 +1,9 @@
 import React from "react";
-import {
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-  getByText,
-} from "@testing-library/react";
-import { fetchShow as mockFetchShow } from "./api/fetchShow";
-import userEvent from "@testing-library/user-event";
-import App from "./App";
+import { render } from "@testing-library/react";
+import Episodes from "./Episodes";
 
-jest.mock("./api/fetchShow");
-console.log(mockFetchShow);
-
-const showData = {
-  data: {
+const showData = [
+  {
     id: 2993,
     url: "http://www.tvmaze.com/shows/2993/stranger-things",
     name: "Stranger Things",
@@ -710,20 +699,16 @@ const showData = {
       ],
     },
   },
-};
+];
 
-test("rendering data and clicking on the dropdown menu for a different season", async () => {
-  mockFetchShow.mockResolvedValueOnce(showData);
+test("render episodes", () => {
+  const { queryAllByTestId, rerender } = render(<Episodes episodes={[]} />);
 
-  const { getByText, queryAllByTestId } = render(<App />);
+  const testId = queryAllByTestId(/'episodes'/i);
 
-  await screen.findByRole("heading", /stranger things/i);
+  expect(testId).toHaveLength(0);
 
-  await waitFor(() => {
-    expect(getByText(/select a season/i));
-  });
+  rerender(<Episodes episodes={showData} />);
 
-  userEvent.click(getByText(/select a season/i));
-  fireEvent.click(getByText(/season 1/i));
-  expect(queryAllByTestId(/dropdown/i)).toHaveLength(8);
+  expect(testId).toHaveLength(8);
 });
